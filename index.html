@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>podium</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --surface: #fffdf8;
+      --surface-2: #efe8dc;
+      --surface-3: #e5ddd0;
+      --text: #241f18;
+      --muted: #6f6a60;
+      --line: rgba(36,31,24,.1);
+      --green: #5e9f66;
+      --green-dark: #487a4e;
+      --orange: #e79d3b;
+      --blue: #5aa8d9;
+      --red: #d54f4f;
+      --purple: #815fd0;
+      --gold: #e3b648;
+      --shadow: 0 14px 34px rgba(36,31,24,.08);
+      --radius: 22px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Satoshi', Arial, sans-serif;
+      background: linear-gradient(180deg, #faf6ef 0%, #f2ecdf 100%);
+      color: var(--text);
+    }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: calc(14px + var(--safe-top)) 14px calc(104px + var(--safe-bottom));
+      display: grid;
+      gap: 14px;
+    }
+    .card {
+      background: rgba(255,253,248,.95);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .hero {
+      padding: 18px 16px 14px;
+      background: linear-gradient(135deg, rgba(255,253,248,.98), rgba(239,232,220,.95));
+    }
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--purple), var(--gold));
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+    }
+    .logo::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 8px;
+      width: 14px;
+      height: 17px;
+      border-radius: 12px 12px 8px 8px;
+      background: white;
+    }
+    .logo::after {
+      content: '';
+      position: absolute;
+      left: 21px;
+      top: 24px;
+      width: 4px;
+      height: 12px;
+      background: white;
+      border-radius: 999px;
+      box-shadow: -7px 10px 0 -2px white, 7px 10px 0 -2px white;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .status-pill {
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: .88rem;
+      text-align: center;
+    }
+    .headline {
+      margin-top: 14px;
+      font-size: 1.18rem;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+    .tiny { color: var(--muted); font-size: .9rem; }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: .86rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .name-strip {
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(129,95,208,.12), rgba(227,182,72,.15));
+      border: 1px solid rgba(129,95,208,.12);
+    }
+    .speaker-name {
+      font-size: 1.35rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .timer-box, .score-box {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .timer-box.full, .score-box.full { grid-column: 1 / -1; }
+    .label {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .value {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 7px;
+    }
+    .value.small { font-size: 1.28rem; }
+    .subvalue { margin-top: 6px; font-size: .9rem; color: var(--muted); }
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    button {
+      border: 0;
+      border-radius: 18px;
+      min-height: 58px;
+      padding: 14px 14px;
+      font: inherit;
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .primary { background: var(--green); color: white; }
+    .primary:active { background: var(--green-dark); }
+    .laugh { background: var(--orange); color: white; }
+    .applause { background: var(--blue); color: white; }
+    .stop { background: var(--red); color: white; }
+    .secondary { background: white; color: var(--text); border: 1px solid var(--line); }
+    .purple { background: var(--purple); color: white; }
+    .gold { background: var(--gold); color: #231f18; }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .score-box.main {
+      background: linear-gradient(135deg, rgba(94,159,102,.16), rgba(129,95,208,.12));
+    }
+    .speaker-list, .compare-list, .event-list {
+      display: grid;
+      gap: 10px;
+    }
+    .speaker-card, .compare-card, .event-item {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .speaker-card.active { outline: 2px solid rgba(129,95,208,.28); }
+    .speaker-head, .event-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+    .speaker-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .speaker-actions button {
+      min-height: 44px;
+      font-size: .92rem;
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .rank-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      font-weight: 900;
+      font-size: .95rem;
+    }
+    .compare-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .compare-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .mini {
+      background: var(--surface-2);
+      border-radius: 14px;
+      padding: 10px;
+      border: 1px solid var(--line);
+    }
+    .mini .k { font-size: .7rem; color: var(--muted); text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
+    .mini .v { margin-top: 4px; font-size: 1.12rem; font-weight: 900; }
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: .75rem;
+      font-weight: 900;
+      color: white;
+    }
+    .weak { background: var(--blue); }
+    .medium { background: var(--orange); }
+    .strong { background: var(--red); }
+    .empty {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      background: rgba(255,255,255,.65);
+    }
+    .score-explain {
+      display:grid;
+      gap:10px;
+    }
+    .explain-card {
+      background: linear-gradient(135deg, rgba(255,246,221,.92), rgba(255,253,248,.98));
+      border: 1px solid rgba(227,182,72,.45);
+      border-radius: 18px;
+      padding: 14px;
+      display:grid;
+      gap:8px;
+    }
+    .formula {
+      font-weight: 800;
+      font-size: .98rem;
+      line-height: 1.35;
+    }
+    .example-grid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    .example-box {
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(36,31,24,.08);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .sticky-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: min(480px, 100%);
+      padding: 10px 14px calc(10px + var(--safe-bottom));
+      background: linear-gradient(180deg, rgba(246,241,232,0), rgba(246,241,232,.94) 22%, rgba(246,241,232,1) 100%);
+      backdrop-filter: blur(10px);
+      z-index: 12;
+    }
+    .sticky-actions .bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: rgba(255,253,248,.98);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+    }
+    .sticky-actions button {
+      min-height: 56px;
+      border-radius: 16px;
+      font-size: .9rem;
+      padding: 10px 8px;
+      line-height: 1.05;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+      background: rgba(28,22,16,.42);
+      z-index: 30;
+    }
+    .sheet {
+      width: min(480px, 100%);
+      background: white;
+      border-radius: 24px 24px 18px 18px;
+      padding: 18px 16px calc(18px + var(--safe-bottom));
+      box-shadow: 0 24px 58px rgba(0,0,0,.2);
+      display: grid;
+      gap: 14px;
+    }
+    .sheet h2 { margin: 0; font-size: 1.3rem; }
+    .field {
+      display: grid;
+      gap: 6px;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .sheet input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      min-height: 54px;
+      padding: 14px;
+      font: inherit;
+    }
+    .sheet .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card hero">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Podium</h1>
+            <div class="tiny">Speech reaction judge</div>
+          </div>
+        </div>
+        <div class="status-pill" id="statusBadge">Ready</div>
+      </div>
+      <div class="headline">Who carried the speeches? Who killed it?</div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Now on stage</div>
+      <div class="name-strip">
+        <div class="speaker-name" id="currentSpeakerLabel">No speaker loaded</div>
+        <div class="tiny" id="currentSpeakerNotes">Tap Start speech to enter the next speaker.</div>
+      </div>
+      <div class="timer-grid">
+        <div class="timer-box">
+          <div class="label">Speech timer</div>
+          <div class="value" id="speechClock">00:00.0</div>
+          <div class="subvalue">Total elapsed</div>
+        </div>
+        <div class="timer-box">
+          <div class="label">Reaction timer</div>
+          <div class="value" id="reactionClock">00:00.0</div>
+          <div class="subvalue">Current moment</div>
+        </div>
+        <div class="timer-box full">
+          <div class="label">Active reaction</div>
+          <div class="value small" id="activeReaction">None</div>
+          <div class="subvalue">Laugh or applause while it is running</div>
+        </div>
+      </div>
+      <div class="action-grid">
+        <button id="startBtn" class="primary">Start speech</button>
+        <button id="endBtn" class="secondary">End speech</button>
+        <button id="laughBtn" class="laugh">Start laugh</button>
+        <button id="applauseBtn" class="applause">Start applause</button>
+        <button id="stopReactionBtn" class="stop">Stop reaction</button>
+        <button id="demoBtn" class="secondary">Load demo</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Score snapshot</div>
+      <div class="score-grid">
+        <div class="score-box main full">
+          <div class="label">Total score</div>
+          <div class="value" id="totalScore">0</div>
+          <div class="subvalue">Main comparison number</div>
+        </div>
+        <div class="score-box">
+          <div class="label">Laugh score</div>
+          <div class="value small" id="laughScore">0</div>
+        </div>
+        <div class="score-box">
+          <div class="label">Applause score</div>
+          <div class="value small" id="applauseScore">0</div>
+        </div>
+        <div class="score-box">
+          <div class="label">First laugh bonus pts</div>
+          <div class="value small" id="firstLaughBonus">0</div>
+        </div>
+        <div class="score-box">
+          <div class="label">Final applause bonus pts</div>
+          <div class="value small" id="finalApplauseBonus">0</div>
+        </div>
+        <div class="score-box full">
+          <div class="label">Reaction seconds</div>
+          <div class="value small" id="reactionSeconds">0</div>
+          <div class="subvalue">Laugh plus applause duration</div>
+        </div>
+        <div class="score-box full">
+          <div class="label">Bonus highlights</div>
+          <div class="subvalue" id="bonusHighlights">No bonuses yet</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">How scoring works</div>
+      <div class="score-explain">
+        <div class="explain-card">
+          <div class="formula">Longer reactions score more because points increase with seconds. Stronger reactions score more because weak = x1.0, medium = x1.5, strong = x2.2.</div>
+          <div class="tiny">Laugh points = seconds × strength × 10, plus 3 pts for each separate laugh. Applause points = seconds × strength × 6, plus 2 pts for each separate applause. Longer moments also get a small extra impact bonus.</div>
+        </div>
+        <div class="example-grid">
+          <div class="example-box">
+            <div class="label">Laugh example</div>
+            <div class="tiny">2 sec weak laugh ≈ 20 pts</div>
+            <div class="tiny">2 sec strong laugh ≈ 44 pts</div>
+            <div class="tiny">5 sec strong laugh ≈ 117 pts</div>
+          </div>
+          <div class="example-box">
+            <div class="label">Applause example</div>
+            <div class="tiny">2 sec weak applause ≈ 12 pts</div>
+            <div class="tiny">2 sec strong applause ≈ 26 pts</div>
+            <div class="tiny">5 sec strong applause ≈ 72 pts</div>
+          </div>
+        </div>
+        <div class="explain-card">
+          <div class="formula">Bonus points: early first laugh gets rewarded, and the final applause gets an extra ending bonus.</div>
+          <div class="tiny">First laugh bonus = 30 minus the first laugh time in seconds. Example: first laugh at 9.5 sec = 20.5 bonus pts. Final applause bonus = last applause seconds × strength × 8.</div>
+        </div>
+      </div>
+    </section>
+
+<section class="card">
+      <div class="section-title">Current event log</div>
+      <div class="event-list" id="eventList"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Saved speakers</div>
+      <div class="speaker-list" id="speakerList"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Comparison</div>
+      <div class="compare-list" id="compareList"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Downloads</div>
+      <div class="action-grid" style="margin-top:0;">
+        <button id="exportCurrentReportBtn" class="secondary">Current report</button>
+        <button id="exportSessionBtn" class="secondary">Session JSON</button>
+        <button id="exportCsvBtn" class="secondary">Comparison CSV</button>
+        <button id="exportAllReportsBtn" class="secondary">All speakers HTML</button>
+        <button id="importSessionBtn" class="secondary" style="grid-column:1 / -1;">Import saved session</button>
+      </div>
+      <input id="importFileInput" type="file" accept="application/json" style="display:none" />
+    </section>
+  </main>
+
+  <div class="sticky-actions">
+    <div class="bar">
+      <button id="saveSpeakerBtn" class="primary">Save<br>speaker</button>
+      <button id="nextSpeakerBtn" class="purple">Next<br>speaker</button>
+      <button id="quickCompareBtn" class="gold">Jump to<br>compare</button>
+      <button id="clearCurrentBtn" class="secondary">Clear<br>draft</button>
+    </div>
+  </div>
+
+  <div class="modal" id="speakerModal">
+    <div class="sheet">
+      <h2>Who is speaking?</h2>
+      <div class="tiny">Add the speaker right before they present.</div>
+      <label class="field">Speaker name<input id="speakerModalName" type="text" placeholder="Best man, Bride, MC..." /></label>
+      <label class="field">Role / notes<input id="speakerModalNotes" type="text" placeholder="Optional short note" /></label>
+      <div class="sheet-actions">
+        <button id="speakerModalConfirm" class="primary">Start this speaker</button>
+        <button id="speakerModalCancel" class="secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="intensityModal">
+    <div class="sheet">
+      <h2>Reaction strength</h2>
+      <div class="tiny" id="modalText">Choose the strength for the reaction you just stopped.</div>
+      <div class="sheet-actions">
+        <button data-intensity="weak" class="secondary">Weak</button>
+        <button data-intensity="medium" class="laugh">Medium</button>
+      </div>
+      <button data-intensity="strong" class="stop">Strong</button>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      speechStarted: false,
+      speechEnded: false,
+      speechStartTs: null,
+      speechEndTs: null,
+      currentReaction: null,
+      pendingReaction: null,
+      events: [],
+      speakers: [],
+      selectedSpeakerId: null,
+      timer: null
+    };
+
+    const els = {
+      statusBadge: document.getElementById('statusBadge'),
+      currentSpeakerLabel: document.getElementById('currentSpeakerLabel'),
+      currentSpeakerNotes: document.getElementById('currentSpeakerNotes'),
+      speechClock: document.getElementById('speechClock'),
+      reactionClock: document.getElementById('reactionClock'),
+      activeReaction: document.getElementById('activeReaction'),
+      totalScore: document.getElementById('totalScore'),
+      laughScore: document.getElementById('laughScore'),
+      applauseScore: document.getElementById('applauseScore'),
+      firstLaughBonus: document.getElementById('firstLaughBonus'),
+      finalApplauseBonus: document.getElementById('finalApplauseBonus'),
+      reactionSeconds: document.getElementById('reactionSeconds'),
+      bonusHighlights: document.getElementById('bonusHighlights'),
+      eventList: document.getElementById('eventList'),
+      speakerList: document.getElementById('speakerList'),
+      compareList: document.getElementById('compareList'),
+      startBtn: document.getElementById('startBtn'),
+      endBtn: document.getElementById('endBtn'),
+      laughBtn: document.getElementById('laughBtn'),
+      applauseBtn: document.getElementById('applauseBtn'),
+      stopReactionBtn: document.getElementById('stopReactionBtn'),
+      demoBtn: document.getElementById('demoBtn'),
+      saveSpeakerBtn: document.getElementById('saveSpeakerBtn'),
+      nextSpeakerBtn: document.getElementById('nextSpeakerBtn'),
+      quickCompareBtn: document.getElementById('quickCompareBtn'),
+      clearCurrentBtn: document.getElementById('clearCurrentBtn'),
+      exportCurrentReportBtn: document.getElementById('exportCurrentReportBtn'),
+      exportSessionBtn: document.getElementById('exportSessionBtn'),
+      exportCsvBtn: document.getElementById('exportCsvBtn'),
+      exportAllReportsBtn: document.getElementById('exportAllReportsBtn'),
+      importSessionBtn: document.getElementById('importSessionBtn'),
+      importFileInput: document.getElementById('importFileInput'),
+      speakerModal: document.getElementById('speakerModal'),
+      speakerModalName: document.getElementById('speakerModalName'),
+      speakerModalNotes: document.getElementById('speakerModalNotes'),
+      speakerModalConfirm: document.getElementById('speakerModalConfirm'),
+      speakerModalCancel: document.getElementById('speakerModalCancel'),
+      intensityModal: document.getElementById('intensityModal'),
+      modalText: document.getElementById('modalText')
+    };
+
+    function formatSeconds(sec) {
+      const s = Math.max(0, Number(sec || 0));
+      const mins = Math.floor(s / 60);
+      const secs = (s % 60).toFixed(1).padStart(4, '0');
+      return `${String(mins).padStart(2, '0')}:${secs}`;
+    }
+    function round1(n) { return Math.round((Number(n || 0) + Number.EPSILON) * 10) / 10; }
+    function safeName() {
+      return els.currentSpeakerLabel.dataset.name || '';
+    }
+    function safeNotes() {
+      return els.currentSpeakerNotes.dataset.notes || '';
+    }
+    function setCurrentSpeaker(name, notes='') {
+      const finalName = (name || '').trim();
+      const finalNotes = (notes || '').trim();
+      els.currentSpeakerLabel.dataset.name = finalName;
+      els.currentSpeakerNotes.dataset.notes = finalNotes;
+      els.currentSpeakerLabel.textContent = finalName || 'No speaker loaded';
+      els.currentSpeakerNotes.textContent = finalNotes || (finalName ? 'No notes' : 'Tap Start speech to enter the next speaker.');
+    }
+    function slugify(v) { return String(v || 'speaker').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'speaker'; }
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+    function setStatus(text) { els.statusBadge.textContent = text; }
+    function strengthMultiplier(level) { return ({ weak: 1.0, medium: 1.5, strong: 2.2 })[level] || 1.0; }
+    function nowSpeechSeconds() {
+      if (!state.speechStarted) return 0;
+      const endTs = state.speechEnded ? state.speechEndTs : Date.now();
+      return (endTs - state.speechStartTs) / 1000;
+    }
+    function currentReactionSeconds() {
+      if (!state.currentReaction) return 0;
+      return (Date.now() - state.currentReaction.startTs) / 1000;
+    }
+    function currentPayload() {
+      return {
+        speakerName: safeName() || 'Unnamed speaker',
+        notes: safeNotes(),
+        speechLength: nowSpeechSeconds(),
+        events: state.events.map(e => ({ ...e }))
+      };
+    }
+    function computeAnalyticsFromPayload(payload) {
+      const speechLength = Number(payload.speechLength || 0);
+      const events = (payload.events || []).map(e => ({ ...e }));
+      const laughs = events.filter(e => e.type === 'laugh');
+      const applause = events.filter(e => e.type === 'applause');
+      const scoredEvents = events.map(e => {
+        const multiplier = strengthMultiplier(e.intensity);
+        const eventWeight = e.type === 'laugh' ? 10 : 6;
+        const basePoints = e.seconds * multiplier * eventWeight;
+        const impactBonus = Math.max(0, (e.seconds - 1.5) * (e.type === 'laugh' ? 4 : 3));
+        return { ...e, scoring: { multiplier, basePoints, impactBonus, total: basePoints + impactBonus } };
+      });
+      const laughScore = scoredEvents.filter(e => e.type === 'laugh').reduce((s, e) => s + e.scoring.total, 0) + (laughs.length * 3);
+      const applauseScore = scoredEvents.filter(e => e.type === 'applause').reduce((s, e) => s + e.scoring.total, 0) + (applause.length * 2);
+      const firstLaugh = laughs.length ? laughs.reduce((a, b) => a.startSec < b.startSec ? a : b) : null;
+      const lastApplause = applause.length ? applause.reduce((a, b) => a.endSec > b.endSec ? a : b) : null;
+      const firstLaughBonus = firstLaugh ? Math.max(0, 30 - firstLaugh.startSec) : 0;
+      const finalApplauseBonus = lastApplause ? lastApplause.seconds * strengthMultiplier(lastApplause.intensity) * 8 : 0;
+      const firstLaughLabel = firstLaugh ? `First laugh at ${round1(firstLaugh.startSec)} sec → bonus ${round1(firstLaughBonus)} pts` : 'No laugh bonus';
+      const finalApplauseLabel = lastApplause ? `Final applause ${round1(lastApplause.seconds)} sec (${lastApplause.intensity}) → bonus ${round1(finalApplauseBonus)} pts` : 'No final applause bonus';
+      const totalScore = laughScore + applauseScore + firstLaughBonus + finalApplauseBonus;
+      return {
+        speechLength,
+        laughs,
+        applause,
+        scoredEvents,
+        laughScore,
+        applauseScore,
+        firstLaughBonus,
+        finalApplauseBonus,
+        totalScore,
+        reactionSeconds: events.reduce((s, e) => s + e.seconds, 0),
+        firstLaughLabel,
+        finalApplauseLabel
+      };
+    }
+    function computeCurrentAnalytics() { return computeAnalyticsFromPayload(currentPayload()); }
+
+    function updateButtons() {
+      const speechActive = state.speechStarted && !state.speechEnded;
+      const reactionActive = !!state.currentReaction;
+      const waitingStrength = !!state.pendingReaction;
+      els.startBtn.disabled = state.speechStarted;
+      els.endBtn.disabled = !speechActive || reactionActive || waitingStrength;
+      els.laughBtn.disabled = !speechActive || reactionActive || waitingStrength;
+      els.applauseBtn.disabled = !speechActive || reactionActive || waitingStrength;
+      els.stopReactionBtn.disabled = !reactionActive;
+      els.saveSpeakerBtn.disabled = !state.speechEnded || !state.events.length;
+      els.nextSpeakerBtn.disabled = !state.speechEnded;
+      els.exportCurrentReportBtn.disabled = !state.events.length;
+      els.exportSessionBtn.disabled = !state.speakers.length;
+      els.exportCsvBtn.disabled = !state.speakers.length;
+      els.exportAllReportsBtn.disabled = !state.speakers.length;
+    }
+
+    function renderEventList(events) {
+      if (!events.length) {
+        els.eventList.innerHTML = '<div class="empty">No reactions recorded yet.</div>';
+        return;
+      }
+      els.eventList.innerHTML = [...events].sort((a,b) => a.startSec - b.startSec).map((e, i) => `
+        <div class="event-item">
+          <div class="event-head">
+            <strong>${i + 1}. ${e.type === 'laugh' ? 'Laugh' : 'Applause'}</strong>
+            <span>${formatSeconds(e.startSec)} - ${formatSeconds(e.endSec)}</span>
+          </div>
+          <div>${round1(e.seconds)} sec · <span class="tag ${e.intensity}">${e.intensity}</span> · ${round1(e.scoring.total)} pts</div>
+        </div>
+      `).join('');
+    }
+    function renderSpeakerList() {
+      if (!state.speakers.length) {
+        els.speakerList.innerHTML = '<div class="empty">No saved speakers yet. Save one, then tap Next speaker.</div>';
+        return;
+      }
+      els.speakerList.innerHTML = state.speakers.map(s => `
+        <div class="speaker-card ${state.selectedSpeakerId === s.id ? 'active' : ''}">
+          <div class="speaker-head">
+            <div>
+              <strong>${escapeHtml(s.speakerName)}</strong>
+              <div class="tiny">${round1(s.analytics.totalScore)} pts · ${formatSeconds(s.analytics.speechLength)}</div>
+            </div>
+            <span class="rank-chip">${s.analytics.scoredEvents.length}</span>
+          </div>
+          <div class="tiny">${escapeHtml(s.notes || 'No notes')}</div>
+          <div class="speaker-actions">
+            <button class="secondary" data-load="${s.id}">Load</button>
+            <button class="secondary" data-report="${s.id}">Report</button>
+          </div>
+        </div>
+      `).join('');
+      els.speakerList.querySelectorAll('[data-load]').forEach(btn => btn.addEventListener('click', () => loadSavedSpeaker(btn.dataset.load)));
+      els.speakerList.querySelectorAll('[data-report]').forEach(btn => btn.addEventListener('click', () => exportSpeakerReportById(btn.dataset.report)));
+    }
+    function renderCompareList() {
+      if (!state.speakers.length) {
+        els.compareList.innerHTML = '<div class="empty">Comparison appears here after you save speakers.</div>';
+        return;
+      }
+      const ranked = [...state.speakers].sort((a,b) => b.analytics.totalScore - a.analytics.totalScore);
+      els.compareList.innerHTML = ranked.map((s, i) => `
+        <div class="compare-card">
+          <div class="compare-top">
+            <div>
+              <div class="tiny">Rank ${i + 1}</div>
+              <strong style="font-size:1.12rem;">${escapeHtml(s.speakerName)}</strong>
+            </div>
+            <div class="rank-chip">${round1(s.analytics.totalScore)}</div>
+          </div>
+          <div class="compare-metrics">
+            <div class="mini"><div class="k">Laugh</div><div class="v">${round1(s.analytics.laughScore)}</div></div>
+            <div class="mini"><div class="k">Applause</div><div class="v">${round1(s.analytics.applauseScore)}</div></div>
+            <div class="mini"><div class="k">First laugh</div><div class="v">${round1(s.analytics.firstLaughBonus)}</div></div>
+            <div class="mini"><div class="k">Final clap</div><div class="v">${round1(s.analytics.finalApplauseBonus)}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+    function renderCurrent() {
+      const analytics = computeCurrentAnalytics();
+      els.speechClock.textContent = formatSeconds(nowSpeechSeconds());
+      els.reactionClock.textContent = formatSeconds(currentReactionSeconds());
+      els.activeReaction.textContent = state.currentReaction ? (state.currentReaction.type === 'laugh' ? 'Laugh running' : 'Applause running') : 'None';
+      els.totalScore.textContent = round1(analytics.totalScore);
+      els.laughScore.textContent = round1(analytics.laughScore);
+      els.applauseScore.textContent = round1(analytics.applauseScore);
+      els.firstLaughBonus.textContent = round1(analytics.firstLaughBonus);
+      els.finalApplauseBonus.textContent = round1(analytics.finalApplauseBonus);
+      els.reactionSeconds.textContent = round1(analytics.reactionSeconds);
+      els.bonusHighlights.textContent = `${analytics.firstLaughLabel} · ${analytics.finalApplauseLabel}`;
+      renderEventList(analytics.scoredEvents);
+      renderSpeakerList();
+      renderCompareList();
+      updateButtons();
+    }
+
+    function openSpeakerModal() {
+      els.speakerModalName.value = safeName() || '';
+      els.speakerModalNotes.value = safeNotes() || '';
+      els.speakerModal.style.display = 'flex';
+      setTimeout(() => els.speakerModalName.focus(), 30);
+    }
+    function closeSpeakerModal() { els.speakerModal.style.display = 'none'; }
+    function startSpeech() {
+      state.speechStarted = true;
+      state.speechEnded = false;
+      state.speechStartTs = Date.now();
+      state.speechEndTs = null;
+      setStatus(`Live: ${safeName() || 'Unnamed speaker'}`);
+      renderCurrent();
+    }
+    function confirmSpeakerAndStart() {
+      setCurrentSpeaker(els.speakerModalName.value, els.speakerModalNotes.value);
+      closeSpeakerModal();
+      startSpeech();
+    }
+    function endSpeech() {
+      state.speechEnded = true;
+      state.speechEndTs = Date.now();
+      setStatus(`Finished: ${safeName() || 'Speaker'}`);
+      renderCurrent();
+    }
+    function startReaction(type) {
+      state.currentReaction = { id: crypto.randomUUID(), type, startTs: Date.now(), startSec: nowSpeechSeconds() };
+      setStatus(type === 'laugh' ? 'Laugh running' : 'Applause running');
+      renderCurrent();
+    }
+    function stopReaction() {
+      if (!state.currentReaction) return;
+      const endSec = nowSpeechSeconds();
+      state.pendingReaction = {
+        id: state.currentReaction.id,
+        type: state.currentReaction.type,
+        startSec: state.currentReaction.startSec,
+        endSec,
+        seconds: Math.max(0.1, endSec - state.currentReaction.startSec)
+      };
+      state.currentReaction = null;
+      els.modalText.textContent = `${state.pendingReaction.type === 'laugh' ? 'Laugh' : 'Applause'} lasted ${round1(state.pendingReaction.seconds)} sec. Choose strength.`;
+      els.intensityModal.style.display = 'flex';
+      renderCurrent();
+    }
+    function confirmIntensity(level) {
+      if (!state.pendingReaction) return;
+      state.events.push({ ...state.pendingReaction, intensity: level });
+      state.pendingReaction = null;
+      els.intensityModal.style.display = 'none';
+      setStatus('Reaction saved');
+      renderCurrent();
+    }
+    function resetCurrentFields() {
+      state.speechStarted = false;
+      state.speechEnded = false;
+      state.speechStartTs = null;
+      state.speechEndTs = null;
+      state.currentReaction = null;
+      state.pendingReaction = null;
+      state.events = [];
+      state.selectedSpeakerId = null;
+      setCurrentSpeaker('', '');
+      els.intensityModal.style.display = 'none';
+      closeSpeakerModal();
+    }
+    function clearCurrent() {
+      resetCurrentFields();
+      setStatus('Ready');
+      renderCurrent();
+    }
+    function nextSpeaker() {
+      resetCurrentFields();
+      setStatus('Next speaker ready');
+      renderCurrent();
+      openSpeakerModal();
+    }
+    function upsertSpeaker(record) {
+      const idx = state.speakers.findIndex(s => s.id === record.id);
+      if (idx >= 0) state.speakers[idx] = record; else state.speakers.push(record);
+    }
+    function saveSpeaker() {
+      const analytics = computeCurrentAnalytics();
+      if (!analytics.scoredEvents.length) return;
+      const record = {
+        id: state.selectedSpeakerId || crypto.randomUUID(),
+        speakerName: safeName() || 'Unnamed speaker',
+        notes: safeNotes(),
+        payload: currentPayload(),
+        analytics
+      };
+      state.selectedSpeakerId = record.id;
+      upsertSpeaker(record);
+      setStatus(`Saved: ${record.speakerName}`);
+      renderCurrent();
+    }
+    function loadSavedSpeaker(id) {
+      const s = state.speakers.find(x => x.id === id);
+      if (!s) return;
+      state.selectedSpeakerId = s.id;
+      setCurrentSpeaker(s.speakerName, s.notes || '');
+      state.events = s.payload.events.map(e => ({ ...e }));
+      state.speechStarted = true;
+      state.speechEnded = true;
+      state.speechStartTs = 0;
+      state.speechEndTs = s.payload.speechLength * 1000;
+      state.currentReaction = null;
+      state.pendingReaction = null;
+      setStatus(`Loaded: ${s.speakerName}`);
+      renderCurrent();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function speakerReportHtml(record) {
+      const a = record.analytics;
+      const rows = a.scoredEvents.map((e, i) => `<tr><td>${i+1}</td><td>${escapeHtml(e.type)}</td><td>${formatSeconds(e.startSec)}</td><td>${formatSeconds(e.endSec)}</td><td>${round1(e.seconds)} sec</td><td>${escapeHtml(e.intensity)}</td><td>${round1(e.scoring.total)}</td></tr>`).join('');
+      return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(record.speakerName)} report</title><style>body{font-family:Arial,sans-serif;background:#f6f1e8;color:#241f18;margin:0;padding:16px}.wrap{max-width:720px;margin:0 auto;display:grid;gap:14px}.card{background:white;border:1px solid rgba(36,31,24,.1);border-radius:18px;padding:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{background:#efe8dc;border-radius:14px;padding:12px}.k{font-size:.72rem;color:#6f6a60;text-transform:uppercase;font-weight:700}.v{font-size:1.32rem;font-weight:900;margin-top:5px}.note{margin-top:8px;color:#6f6a60;font-size:.95rem;line-height:1.45}.buzz{background:#fff6dd;border:1px solid #ead28a;border-radius:14px;padding:12px;margin-top:10px}table{width:100%;border-collapse:collapse}th,td{padding:10px 6px;border-bottom:1px solid rgba(36,31,24,.1);text-align:left}th{font-size:.72rem;text-transform:uppercase;color:#6f6a60}@media(max-width:520px){.grid{grid-template-columns:1fr}}</style></head><body><div class="wrap"><div class="card"><h1>${escapeHtml(record.speakerName)}</h1><p>${escapeHtml(record.notes || '')}</p></div><div class="card"><div class="grid"><div class="tile"><div class="k">Total score pts</div><div class="v">${round1(a.totalScore)}</div></div><div class="tile"><div class="k">Speech length</div><div class="v">${formatSeconds(a.speechLength)}</div></div><div class="tile"><div class="k">Reaction time sec</div><div class="v">${round1(a.reactionSeconds)} sec</div></div><div class="tile"><div class="k">Laugh score pts</div><div class="v">${round1(a.laughScore)}</div></div><div class="tile"><div class="k">Applause score pts</div><div class="v">${round1(a.applauseScore)}</div></div><div class="tile"><div class="k">Bonus points</div><div class="v">${round1(a.firstLaughBonus + a.finalApplauseBonus)} pts</div></div></div><div class="buzz"><strong>How scoring works</strong><div class="note">Longer laughs and applause gain more points because score rises with seconds.</div><div class="note">Stronger reactions gain more points because weak = x1.0, medium = x1.5, strong = x2.2.</div><div class="note">Laugh points = seconds × strength × 10, plus 3 pts per laugh. Applause points = seconds × strength × 6, plus 2 pts per applause. Longer moments also get a small impact bonus.</div><div class="note">Example laughs: 2 sec weak ≈ 20 pts, 2 sec strong ≈ 44 pts, 5 sec strong ≈ 117 pts.</div><div class="note">Example applause: 2 sec weak ≈ 12 pts, 2 sec strong ≈ 26 pts, 5 sec strong ≈ 72 pts.</div><div class="note">${escapeHtml(a.firstLaughLabel)}</div><div class="note">${escapeHtml(a.finalApplauseLabel)}</div><div class="note">The first-laugh figure is bonus points, not seconds. Example: first laugh at 9.5 sec gives a 20.5 pt bonus because the formula is 30 minus time to first laugh.</div></div></div><div class="card"><table><thead><tr><th>#</th><th>Type</th><th>Start</th><th>End</th><th>Length</th><th>Strength</th><th>Points</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No events recorded.</td></tr>'}</tbody></table></div></div></body></html>`;
+    }
+    function downloadText(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function exportCurrentReport() {
+      const analytics = computeCurrentAnalytics();
+      if (!analytics.scoredEvents.length) return;
+      const record = { id: state.selectedSpeakerId || crypto.randomUUID(), speakerName: safeName() || 'Unnamed speaker', notes: safeNotes(), payload: currentPayload(), analytics };
+      downloadText(`${slugify(record.speakerName)}-report.html`, speakerReportHtml(record), 'text/html');
+      setStatus(`Downloaded report: ${record.speakerName}`);
+    }
+    function exportSpeakerReportById(id) {
+      const record = state.speakers.find(s => s.id === id);
+      if (!record) return;
+      downloadText(`${slugify(record.speakerName)}-report.html`, speakerReportHtml(record), 'text/html');
+      setStatus(`Downloaded report: ${record.speakerName}`);
+    }
+    function exportSession() {
+      const payload = { app: 'Podium', exportedAt: new Date().toISOString(), speakers: state.speakers.map(s => ({ id: s.id, speakerName: s.speakerName, notes: s.notes, payload: s.payload })) };
+      downloadText(`podium-session-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(payload, null, 2), 'application/json');
+      setStatus('Downloaded session JSON');
+    }
+    function exportCsv() {
+      const ranked = [...state.speakers].sort((a,b) => b.analytics.totalScore - a.analytics.totalScore);
+      const headers = ['rank','speaker','total_score','speech_length_sec','laugh_score','applause_score','first_laugh_bonus','final_applause_bonus','laugh_count','applause_count','reaction_seconds'];
+      const rows = ranked.map((s, i) => [i+1, `"${String(s.speakerName).replace(/"/g,'""')}"`, round1(s.analytics.totalScore), round1(s.analytics.speechLength), round1(s.analytics.laughScore), round1(s.analytics.applauseScore), round1(s.analytics.firstLaughBonus), round1(s.analytics.finalApplauseBonus), s.analytics.laughs.length, s.analytics.applause.length, round1(s.analytics.reactionSeconds)].join(','));
+      downloadText(`podium-comparison-${new Date().toISOString().slice(0,10)}.csv`, [headers.join(','), ...rows].join('\n'), 'text/csv');
+      setStatus('Downloaded comparison CSV');
+    }
+    function exportAllReports() {
+      const ranked = [...state.speakers].sort((a,b) => b.analytics.totalScore - a.analytics.totalScore);
+      const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>All speakers</title><style>body{font-family:Arial,sans-serif;background:#f6f1e8;color:#241f18;margin:0;padding:16px}.wrap{max-width:720px;margin:0 auto;display:grid;gap:14px}.card{background:white;border:1px solid rgba(36,31,24,.1);border-radius:18px;padding:16px}.speaker{border:1px solid rgba(36,31,24,.1);border-radius:16px;padding:12px;margin-top:10px}</style></head><body><div class="wrap"><div class="card"><h1>All speakers</h1><p>Session comparison export.</p></div><div class="card">${ranked.map((s,i)=>`<div class="speaker"><strong>${i+1}. ${escapeHtml(s.speakerName)}</strong><div>Score ${round1(s.analytics.totalScore)} · Laugh ${round1(s.analytics.laughScore)} · Applause ${round1(s.analytics.applauseScore)}</div></div>`).join('')}</div></div></body></html>`;
+      downloadText(`podium-all-speakers-${new Date().toISOString().slice(0,10)}.html`, html, 'text/html');
+      setStatus('Downloaded all-speaker HTML');
+    }
+    function importSessionFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          state.speakers = (data.speakers || []).map(s => ({ id: s.id || crypto.randomUUID(), speakerName: s.speakerName || 'Unnamed speaker', notes: s.notes || '', payload: s.payload, analytics: computeAnalyticsFromPayload(s.payload) }));
+          if (state.speakers[0]) loadSavedSpeaker(state.speakers[0].id); else renderCurrent();
+          setStatus(`Imported ${state.speakers.length} speakers`);
+        } catch (e) {
+          alert('Could not import that session file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+    function loadDemoData() {
+      clearCurrent();
+      setCurrentSpeaker('Best man', 'Demo speech');
+      state.speechStarted = true;
+      state.speechEnded = true;
+      state.speechStartTs = 0;
+      state.speechEndTs = 92000;
+      state.events = [
+        { id: crypto.randomUUID(), type: 'laugh', startSec: 8.5, endSec: 11.7, seconds: 3.2, intensity: 'medium' },
+        { id: crypto.randomUUID(), type: 'laugh', startSec: 24.2, endSec: 30.9, seconds: 6.7, intensity: 'strong' },
+        { id: crypto.randomUUID(), type: 'laugh', startSec: 48.0, endSec: 50.2, seconds: 2.2, intensity: 'weak' },
+        { id: crypto.randomUUID(), type: 'applause', startSec: 82.1, endSec: 89.6, seconds: 7.5, intensity: 'strong' }
+      ];
+      setStatus('Demo loaded');
+      renderCurrent();
+    }
+
+    els.startBtn.addEventListener('click', openSpeakerModal);
+    els.endBtn.addEventListener('click', endSpeech);
+    els.laughBtn.addEventListener('click', () => startReaction('laugh'));
+    els.applauseBtn.addEventListener('click', () => startReaction('applause'));
+    els.stopReactionBtn.addEventListener('click', stopReaction);
+    els.demoBtn.addEventListener('click', loadDemoData);
+    els.saveSpeakerBtn.addEventListener('click', saveSpeaker);
+    els.nextSpeakerBtn.addEventListener('click', nextSpeaker);
+    els.quickCompareBtn.addEventListener('click', () => document.getElementById('compareList').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    els.clearCurrentBtn.addEventListener('click', clearCurrent);
+    els.exportCurrentReportBtn.addEventListener('click', exportCurrentReport);
+    els.exportSessionBtn.addEventListener('click', exportSession);
+    els.exportCsvBtn.addEventListener('click', exportCsv);
+    els.exportAllReportsBtn.addEventListener('click', exportAllReports);
+    els.importSessionBtn.addEventListener('click', () => els.importFileInput.click());
+    els.importFileInput.addEventListener('change', e => { const file = e.target.files[0]; if (file) importSessionFile(file); e.target.value = ''; });
+    els.speakerModalConfirm.addEventListener('click', confirmSpeakerAndStart);
+    els.speakerModalCancel.addEventListener('click', closeSpeakerModal);
+    els.speakerModal.addEventListener('click', e => { if (e.target === els.speakerModal) closeSpeakerModal(); });
+    document.querySelectorAll('[data-intensity]').forEach(btn => btn.addEventListener('click', () => confirmIntensity(btn.dataset.intensity)));
+    els.intensityModal.addEventListener('click', e => { if (e.target === els.intensityModal) els.intensityModal.style.display = 'none'; });
+
+    state.timer = setInterval(() => {
+      if ((state.speechStarted && !state.speechEnded) || state.currentReaction) renderCurrent();
+    }, 100);
+
+    setCurrentSpeaker('', '');
+    renderCurrent();
+  </script>
+</body>
+</html>
