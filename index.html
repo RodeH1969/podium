@@ -444,11 +444,11 @@
           <div class="value small" id="applauseScore">0</div>
         </div>
         <div class="score-box">
-          <div class="label">First laugh bonus pts</div>
+          <div class="label">Reactions</div>
           <div class="value small" id="firstLaughBonus">0</div>
         </div>
         <div class="score-box">
-          <div class="label">Final applause bonus pts</div>
+          <div class="label">Max possible</div>
           <div class="value small" id="finalApplauseBonus">0</div>
         </div>
         <div class="score-box full">
@@ -457,8 +457,8 @@
           <div class="subvalue">Laugh plus applause duration</div>
         </div>
         <div class="score-box full">
-          <div class="label">Bonus highlights</div>
-          <div class="subvalue" id="bonusHighlights">No bonuses yet</div>
+          <div class="label">Scoring summary</div>
+          <div class="subvalue" id="bonusHighlights">No reactions yet</div>
         </div>
       </div>
     </section>
@@ -482,7 +482,7 @@
             <div class="tiny">2 sec strong ≈ 26 pts</div>
           </div>
         </div>
-        <div class="tiny">Bonus: early first laugh + strong final applause.</div>
+        <div class="tiny">No bonuses. Only time and strength matter.</div>
       </div>
     </section>
 
@@ -631,6 +631,16 @@
     }
     function setStatus(text) { els.statusBadge.textContent = text; }
     function strengthMultiplier(level) { return ({ weak: 1.0, medium: 1.5, strong: 2.2 })[level] || 1.0; }
+    function reactionScore(seconds, intensity) {
+      const maxTime = 10;
+      const safeSeconds = Math.max(0, Number(seconds || 0));
+      const clampedSeconds = Math.min(safeSeconds, maxTime);
+      const timeFactor = clampedSeconds / maxTime;
+      const strengthFactor = strengthMultiplier(intensity);
+      const maxStrength = strengthMultiplier("strong");
+      return (timeFactor * strengthFactor / maxStrength) * 10;
+    }
+
     function nowSpeechSeconds() {
       if (!state.speechStarted) return 0;
       const endTs = state.speechEnded ? state.speechEndTs : Date.now();
@@ -651,24 +661,30 @@
     function computeAnalyticsFromPayload(payload) {
       const speechLength = Number(payload.speechLength || 0);
       const events = (payload.events || []).map(e => ({ ...e }));
-      const laughs = events.filter(e => e.type === 'laugh');
-      const applause = events.filter(e => e.type === 'applause');
-      const scoredEvents = events.map(e => {
-        const multiplier = strengthMultiplier(e.intensity);
-        const eventWeight = e.type === 'laugh' ? 10 : 6;
-        const basePoints = e.seconds * multiplier * eventWeight;
-        const impactBonus = Math.max(0, (e.seconds - 1.5) * (e.type === 'laugh' ? 4 : 3));
-        return { ...e, scoring: { multiplier, basePoints, impactBonus, total: basePoints + impactBonus } };
-      });
-      const laughScore = scoredEvents.filter(e => e.type === 'laugh').reduce((s, e) => s + e.scoring.total, 0) + (laughs.length * 3);
-      const applauseScore = scoredEvents.filter(e => e.type === 'applause').reduce((s, e) => s + e.scoring.total, 0) + (applause.length * 2);
-      const firstLaugh = laughs.length ? laughs.reduce((a, b) => a.startSec < b.startSec ? a : b) : null;
-      const lastApplause = applause.length ? applause.reduce((a, b) => a.endSec > b.endSec ? a : b) : null;
-      const firstLaughBonus = firstLaugh ? Math.max(0, 30 - firstLaugh.startSec) : 0;
-      const finalApplauseBonus = lastApplause ? lastApplause.seconds * strengthMultiplier(lastApplause.intensity) * 8 : 0;
-      const firstLaughLabel = firstLaugh ? `First laugh at ${round1(firstLaugh.startSec)} sec → bonus ${round1(firstLaughBonus)} pts` : 'No laugh bonus';
-      const finalApplauseLabel = lastApplause ? `Final applause ${round1(lastApplause.seconds)} sec (${lastApplause.intensity}) → bonus ${round1(finalApplauseBonus)} pts` : 'No final applause bonus';
-      const totalScore = laughScore + applauseScore + firstLaughBonus + finalApplauseBonus;
+      const laughs = events.filter(e => e.type === "laugh");
+      const applause = events.filter(e => e.type === "applause");
+
+      const scoredEvents = events.map(e => ({
+        ...e,
+        scoring: {
+          total: reactionScore(e.seconds, e.intensity)
+        }
+      }));
+
+      const laughScore = scoredEvents
+        .filter(e => e.type === "laugh")
+        .reduce((sum, e) => sum + e.scoring.total, 0);
+
+      const applauseScore = scoredEvents
+        .filter(e => e.type === "applause")
+        .reduce((sum, e) => sum + e.scoring.total, 0);
+
+      const totalScore = laughScore + applauseScore;
+      const reactionSeconds = events.reduce((sum, e) => sum + Number(e.seconds || 0), 0);
+      const reactionCount = events.length;
+      const maxPossibleScore = reactionCount * 10;
+      const overallScore10 = reactionCount ? (totalScore / maxPossibleScore) * 10 : 0;
+
       return {
         speechLength,
         laughs,
@@ -676,14 +692,18 @@
         scoredEvents,
         laughScore,
         applauseScore,
-        firstLaughBonus,
-        finalApplauseBonus,
+        firstLaughBonus: 0,
+        finalApplauseBonus: 0,
         totalScore,
-        reactionSeconds: events.reduce((s, e) => s + e.seconds, 0),
-        firstLaughLabel,
-        finalApplauseLabel
+        reactionSeconds,
+        firstLaughLabel: "No bonus points",
+        finalApplauseLabel: "Scoring is based only on time and strength",
+        reactionCount,
+        maxPossibleScore,
+        overallScore10
       };
     }
+
     function computeCurrentAnalytics() { return computeAnalyticsFromPayload(currentPayload()); }
 
     function updateButtons() {
@@ -744,42 +764,49 @@
     }
     function renderCompareList() {
       if (!state.speakers.length) {
-        els.compareList.innerHTML = '<div class="empty">Comparison appears here after you save speakers.</div>';
+        els.compareList.innerHTML = `<div class="empty">Comparison appears here after you save speakers.</div>`;
         return;
       }
-      const ranked = [...state.speakers].sort((a,b) => b.analytics.totalScore - a.analytics.totalScore);
+
+      const ranked = [...state.speakers].sort((a, b) => b.analytics.overallScore10 - a.analytics.overallScore10);
+
       els.compareList.innerHTML = ranked.map((s, i) => `
         <div class="compare-card">
           <div class="compare-top">
             <div>
               <div class="tiny">Rank ${i + 1}</div>
-              <strong style="font-size:1.12rem;">${escapeHtml(s.speakerName)}</strong>
+              <strong style="font-size:1.12rem">${escapeHtml(s.speakerName)}</strong>
             </div>
-            <div class="rank-chip">${round1(s.analytics.totalScore)}</div>
+            <div class="rank-chip">${round1(s.analytics.overallScore10)}/10</div>
           </div>
           <div class="compare-metrics">
+            <div class="mini"><div class="k">Total points</div><div class="v">${round1(s.analytics.totalScore)}</div></div>
+            <div class="mini"><div class="k">Max possible</div><div class="v">${round1(s.analytics.maxPossibleScore)}</div></div>
             <div class="mini"><div class="k">Laugh</div><div class="v">${round1(s.analytics.laughScore)}</div></div>
             <div class="mini"><div class="k">Applause</div><div class="v">${round1(s.analytics.applauseScore)}</div></div>
-            <div class="mini"><div class="k">First laugh bonus</div><div class="v">${round1(s.analytics.firstLaughBonus)}</div></div>
-            <div class="mini"><div class="k">Final applause bonus</div><div class="v">${round1(s.analytics.finalApplauseBonus)}</div></div>
           </div>
-          <div class="tiny">Total ${round1(s.analytics.totalScore)} = Laugh ${round1(s.analytics.laughScore)} + Applause ${round1(s.analytics.applauseScore)} + First laugh ${round1(s.analytics.firstLaughBonus)} + Final applause ${round1(s.analytics.finalApplauseBonus)}</div>
-          </div>
+          <div class="tiny">Total ${round1(s.analytics.totalScore)} · Overall ${round1(s.analytics.overallScore10)}/10 · Reactions ${s.analytics.reactionCount}</div>
         </div>
-      `).join('');
+      `).join("");
     }
+
     function renderCurrent() {
       const analytics = computeCurrentAnalytics();
+
       els.speechClock.textContent = formatSeconds(nowSpeechSeconds());
       els.reactionClock.textContent = formatSeconds(currentReactionSeconds());
-      els.activeReaction.textContent = state.currentReaction ? (state.currentReaction.type === 'laugh' ? 'Laugh running' : 'Applause running') : 'None';
+      els.activeReaction.textContent = state.currentReaction
+        ? (state.currentReaction.type === "laugh" ? "Laugh running" : "Applause running")
+        : "None";
+
       els.totalScore.textContent = round1(analytics.totalScore);
       els.laughScore.textContent = round1(analytics.laughScore);
       els.applauseScore.textContent = round1(analytics.applauseScore);
-      els.firstLaughBonus.textContent = round1(analytics.firstLaughBonus);
-      els.finalApplauseBonus.textContent = round1(analytics.finalApplauseBonus);
+      els.firstLaughBonus.textContent = String(analytics.reactionCount);
+      els.finalApplauseBonus.textContent = round1(analytics.maxPossibleScore);
       els.reactionSeconds.textContent = round1(analytics.reactionSeconds);
-      els.bonusHighlights.textContent = `${analytics.firstLaughLabel} · ${analytics.finalApplauseLabel}`;
+      els.bonusHighlights.textContent = `${analytics.reactionCount} reactions · max ${round1(analytics.maxPossibleScore)} pts · overall ${round1(analytics.overallScore10)}/10`;
+
       renderEventList(analytics.scoredEvents);
       renderSpeakerList();
       renderCompareList();
@@ -1000,7 +1027,9 @@
     els.intensityModal.addEventListener('click', e => { if (e.target === els.intensityModal) els.intensityModal.style.display = 'none'; });
 
     state.timer = setInterval(() => {
-      if ((state.speechStarted && !state.speechEnded) || state.currentReaction) renderCurrent();
+      if (state.speechStarted && !state.speechEnded) {
+        renderCurrent();
+      }
     }, 100);
 
     setCurrentSpeaker('', '');
